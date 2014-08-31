@@ -1,0 +1,8 @@
+COMP 322 Lab1 Readme
+
+8/30/14 COMP 322 Lab1 Started
+Current Status: Lab successfully reads from either explicitly named file or
+stdin. Data is read in byte long increments made up of valid ones and zeros.
+Bytes are converted to decimal and printed as binary, ASCII value, decimal,
+parity is determined and t.error status is provided.
+
