@@ -5,15 +5,15 @@
 
 #define BUFFERSIZE 1024
 
-int binToDec(char *sevenBits) {
+int binToDec(char *eightBits) {
    
-   // convert sevenBits to decimal value
+   // convert first seven bits to decimal value - ignore MSD as parity bit
    
    int i, j = 0, decValue = 0;   
    
-   for (i = 6; i >= 0; i--) {
+   for (i = 7; i > 0; i--) {
       
-      if (sevenBits[i] == '1') {
+      if (eightBits[i] == '1') {
    
          decValue = decValue + intPow(2,j);  
       }
@@ -57,7 +57,6 @@ int parity(char *eightBits) {
 
 void printVals(char * eightBits) {
 
-   char sevenBits[8]; // ASCII Value
    int k,decValue;
    
    // Non-printable characters
@@ -66,14 +65,8 @@ void printVals(char * eightBits) {
       "FF","CR","SO","SI","DLE","DC1","DC2","DC3","DC4","NAK","SYN","ETB","CAN",
       "EM","SUB","ESC","FS","GS","RS","US","SPACE"
    };
-   
-   // strip off MSD and convert to ASCII           
-   for (k = 1; k < 8; k++) {
-               
-      sevenBits[k - 1] = eightBits[k];      
-   }
            
-   decValue = binToDec(sevenBits);
+   decValue = binToDec(eightBits);
             
    // print to stdout binary value
    printf("%s ",eightBits);
@@ -110,8 +103,6 @@ int main(int argc, char *argv[], char **envp) {
 
    // Reads file and converts to char array buffer
    // Every 8 chars that are either 1 or 0 are converted to decimal
-   // ASCII value of the first seven digits
-   // Determine even parity of 8 char array
       
    int fileDescriptor = 0;
    int i,j = 0,k;
@@ -130,7 +121,7 @@ int main(int argc, char *argv[], char **envp) {
    // reads file until EOF reached
    while (read(fileDescriptor, buffer, BUFFERSIZE) > 0) {
       
-      // parse each buffer to read 8 bit binary values   
+      // parse buffer into 8 bit chunks   
       for (i = 0; i < BUFFERSIZE; i++) {
          
          if ((buffer[i] == '0' || buffer[i] == '1') && j < 8) {
@@ -139,7 +130,7 @@ int main(int argc, char *argv[], char **envp) {
             j++;         
          }
          
-         // 8 bit binary value read
+         // for every 8 bits read, output data line
          else if ((buffer[i] == '0' || buffer[i] == '1') && j == 8) {
            
             j = 0;

@@ -6,3 +6,7 @@ stdin. Data is read in byte long increments made up of valid ones and zeros.
 Bytes are converted to decimal and printed as binary, ASCII value, decimal,
 parity is determined and t.error status is provided.
 
+9/1/14 
+Minor code revision.  Removed second seven bit array and just pass eight bit
+array to binary to decimal converter and ignore most significant digit at 
+index 0.
