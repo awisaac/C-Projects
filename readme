@@ -10,3 +10,5 @@ parity is determined and t.error status is provided.
 Minor code revision.  Removed second seven bit array and just pass eight bit
 array to binary to decimal converter and ignore most significant digit at 
 index 0.
+
+9/2/14 Added 'strcmp(argv[1],"-") != 0' condition so that stdin will be read with "-" argument.

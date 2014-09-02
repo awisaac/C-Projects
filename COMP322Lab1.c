@@ -110,7 +110,7 @@ int main(int argc, char *argv[], char **envp) {
    char byteValue[9]; // ASCII Value with parity bit
    
    // open non-stdin file      
-   if (argc > 1) {
+   if (argc > 1 && strcmp(argv[1],"-") != 0) {
    
       fileDescriptor = open(argv[1], O_RDONLY);      
    }
