@@ -138,12 +138,15 @@ int main(int argc, char *argv[], char **envp) {
             printVals(byteValue);
             byteValue[j] = buffer[i]; 
             j++;                       
-         }         
+         }
+         
+         // clear buffer
+         buffer[i] = 0;
       }      
    }
    
-   // incomplete 8 bit value at EOF gets padded and also printed
-   if (j > 0 && j < 8) {
+   // last 8 bit value at EOF gets padded and then printed
+   if (j > 0) {
      
       for (k = j; k < 8; k++) {
       
