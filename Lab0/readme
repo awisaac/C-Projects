@@ -1,0 +1,14 @@
+COMP 322 Lab1 Readme
+
+8/30/14 COMP 322 Lab1 Started
+Current Status: Lab successfully reads from either explicitly named file or
+stdin. Data is read in byte long increments made up of valid ones and zeros.
+Bytes are converted to decimal and printed as binary, ASCII value, decimal,
+parity is determined and t.error status is provided.
+
+9/1/14 
+Minor code revision.  Removed second seven bit array and just pass eight bit
+array to binary to decimal converter and ignore most significant digit at 
+index 0.
+
+9/2/14 Added 'strcmp(argv[1],"-") != 0' condition so that stdin will be read with "-" argument. Cleared buffer after each read to avoid repeated values at end.
