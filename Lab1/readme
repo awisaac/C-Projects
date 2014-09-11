@@ -1,6 +1,7 @@
 COMP 322 Lab 1 Readme
 
-Program outputs start time, forks into 2 separate process.  Child process reports it pid and ppid.  Parent process reports its pid, ppid, child pid, and child's exiting return value. Parent process outputs tick count for user/system for itself and child process.
+Program outputs start time and then forks into 2 separate processes.  Child process reports its pid and ppid and exits.  Parent process reports its pid, ppid, child pid, and child's exiting return value. Parent process outputs tick count for user/system for itself and child process. Program outputs time once again before exiting.
 
 9/9/14 Preliminary build.  Program working for everything except times().
-9/10/14 times() function sorted out.  Program commented and complete.
+9/10/14 Times() function sorted out.  Program commented and complete.
+9/11/14 Moved printed PID info into separate function.
