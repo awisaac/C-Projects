@@ -1,0 +1,8 @@
+COMP 322 Lab 2 Readme
+Andrew Isaac
+
+Lab 2 contains two programs known as launch and tube. Launch forks a child process and executes the commandline arguments provided.  The parent process reports the child's PID and exit status upon exiting.  Tube parses its command line arguments into two groups, which are separated by a comma. It then creates a pipe and forks two child processes.  The first child process dups stdout to the outgoing end of pipe and executes the first argument group.  The second child process dups stdin to incoming end of pipe and executes the second argument group. 
+
+9/16/14 Launch completed. Tube working for processes with no args.
+9/17/14 Tube accepting processes with multiple arguments. Comma required still for just two args.
+9/18/14 Tube command line parsing corrected.  Comma not required for first process if no args.  Second process takes everything from comma to argc. 
