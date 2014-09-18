@@ -1,3 +1,6 @@
+// COMP 282 Lab 2 - launch.c
+// Andrew Isaac 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -5,23 +8,21 @@
 
 int main(int argc, char *argv[]) {
 
-   int i,status, cReturnVal, pid = fork();      
-   char *newarg[argc - 1];
+   int status, pid = fork();      
       
-   if (pid == 0) {
-   
-      for (i = 0; i < argc; i++) {
-   
-         newarg[i] = argv[i + 1]; 
-      }         
+   if (pid == 0) { // child process
       
-      execv(argv[1],newarg);            
+      execvp(argv[1],argv + 1); // execute arguments
+      
+      exit(-1); // should only call when execvp fails            
    }
    
-   else {
+   else { // parent process
    
-      fprintf(stderr, "%s: $$ = %d\n", argv[1], pid);
+      fprintf(stderr, "%s: $$ = %d\n", argv[1], pid); // child pid
       wait(&status);
-      fprintf(stderr, "%s: $? = %d\n", argv[1], WEXITSTATUS(status));
+      fprintf(stderr, "%s: $? = %d\n", argv[1], WEXITSTATUS(status)); // child exit status
    }
+   
+   return 0;
 }
