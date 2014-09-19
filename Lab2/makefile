@@ -38,9 +38,9 @@ tube: $(TUBE)
 # On the following lines (which _must_ start with a tab), are the commands I 
 # need to type -- each time my source file is modified.
 
-$(EXECUTABLES):
-	$(CC) $(CFLAGS) -c $(SRC)
-	$(CC) $(CFLAGS) -o $@ $(OBJ)
+#$(EXECUTABLES):
+#	$(CC) $(CFLAGS) -c $(SRC)
+#	$(CC) $(CFLAGS) -o $@ $(OBJ)
 $(LAUNCH):
 	$(CC) $(CFLAGS) -c $(LAUNCHSRC)
 	$(CC) $(CFLAGS) -o $@ $(LAUNCHOBJ)
