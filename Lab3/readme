@@ -1,0 +1,8 @@
+COMP 322 Lab 3 Readme
+Andrew Isaac
+
+Lab 3 is a program called catcher that takes in command line arguments and registers handlers for the signals identified by those arguments.  Catcher outputs its process id and the handler outputs the signal idenfier of each signal sent to that process id.  Once three consecutive TERM signals are received, the program exits. 
+
+9/23/14 Catcher source code started.  Syntax errors remain.
+9/24/14 Catcher successfully handles signals identified by arguments and outputssignal number.
+9/25/14 Catcher outputs signal identifier through additional function returning static string pointer matching signal number.
