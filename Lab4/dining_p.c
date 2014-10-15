@@ -7,11 +7,24 @@
 #include <sys/stat.h>        
 #include <semaphore.h>
 #include <signal.h>
+     
+char leftFilename[15];
+char rightFilename[15];
+sem_t *rightChop;
+sem_t *leftChop;
+sem_t *mutex;
 
-volatile sig_atomic_t stop;
-
-void handler(int signum) {
-   stop = 1;
+void handler(int signum) {   
+      
+   sem_close(leftChop);
+   sem_close(rightChop);
+   sem_close(mutex);
+   
+   sem_unlink(rightFilename);   
+   sem_unlink(leftFilename);
+   sem_unlink("/mutex");
+   
+   exit(0);
 }
 
 void chop(char *filename, int philosophers, int seat, int side) {   
@@ -19,11 +32,11 @@ void chop(char *filename, int philosophers, int seat, int side) {
    printf("Philosophers=%d Seat=%d\n",philosophers,seat);
    int file = seat; // can't use seat itself in sprintf or it gets converted to char value - weird!
       
-   if (side == 1 && seat + 1 >= philosophers) {
-      sprintf(filename, "/chopstick%d", 0); // last left chop stick
+   if (side == 1 && seat + 1 > philosophers) {
+      sprintf(filename, "/chopstick%d", 1); // last left chop stick
    }
    
-   else if (side == 1 && seat + 1 < philosophers){
+   else if (side == 1 && seat + 1 <= philosophers){
       sprintf(filename, "/chopstick%d", file + 1); // left chop stick
    }   
     
@@ -45,19 +58,18 @@ int main(int argc, char *argv[]) {
       
    int philosophers = strtol(argv[1], NULL, 10);
    int seat = strtol(argv[2], NULL, 10);
-     
-   char leftFilename[15];
-   char rightFilename[15];
-        
-   chop(leftFilename, philosophers, seat, 0);
+   int semvalue;
+   
+   mutex = sem_open("/mutex",O_CREAT,666,1);        
+   chop(leftFilename, philosophers, seat, 1);
    printf("Right: %s\n", leftFilename);
-   sem_t *rightChop = sem_open(leftFilename,O_CREAT,666,1);
+   rightChop = sem_open(leftFilename,O_CREAT,666,1);
    
-   chop(rightFilename, philosophers, seat, 1);
+   chop(rightFilename, philosophers, seat, 0);
    printf("Left: %s\n", rightFilename); 
-   sem_t *leftChop = sem_open(rightFilename,O_CREAT,666,1);
+   leftChop = sem_open(rightFilename,O_CREAT,666,1);
    
-   if (rightChop == SEM_FAILED || leftChop == SEM_FAILED) {
+   if (rightChop == SEM_FAILED || leftChop == SEM_FAILED || mutex == SEM_FAILED) {
    
       fprintf(stderr,"Error: Semaphore open failed.\n");
       exit(1);
@@ -65,27 +77,24 @@ int main(int argc, char *argv[]) {
    
    else {
       
-      while(!stop) {
-         
-         printf("Waiting for right chopstick: %s...\n",rightFilename);
-         sem_wait(rightChop);
-         printf("Waiting for left chopstick: %s...\n",leftFilename);
+      while(1) {         
+         sem_getvalue(rightChop,&semvalue);
+         printf("Philosopher %d is waiting for right chopstick: %s, Current value: %d...\n",seat,rightFilename,semvalue);
+         // sem_wait(mutex); // can have only 0 or 2 chop sticks
+         sem_wait(rightChop);         
+         sleep(1); // initiates deadlock faster
+         sem_getvalue(leftChop,&semvalue);
+         printf("Philosopher %d is waiting for left chopstick: %s, Current value: %d...\n",seat,leftFilename,semvalue);
          sem_wait(leftChop);
-         printf("Eating with both chopsticks...\n");
-         sleep(10); // eat
-         printf("Done eating. Putting chop sticks down.\n");
+         // sem_post(mutex);
+         printf("Philosopher %d is eating with both chopsticks...\n", seat);
+         sleep(5); // eat
+         printf("Philosopher %d is done eating. Putting chop sticks down.\n", seat);
          sem_post(leftChop);
          sem_post(rightChop);
-         printf("Thinking...\n");
-         sleep(10); // think    
-         
+         printf("Philosopher %d is thinking...\n", seat);
+         sleep(5); // think
       }  
    }
-   
-   sem_close(leftChop);
-   sem_close(rightChop);
-   
-   sem_unlink(rightFilename);   
-   sem_unlink(leftFilename);
 } 
 
