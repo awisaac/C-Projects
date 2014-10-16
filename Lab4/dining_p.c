@@ -3,33 +3,30 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <fcntl.h>           
 #include <sys/stat.h>        
 #include <semaphore.h>
 #include <signal.h>
-     
-char leftFilename[15];
-char rightFilename[15];
-sem_t *rightChop;
-sem_t *leftChop;
-sem_t *mutex;
 
-void handler(int signum) {   
-      
-   sem_close(leftChop);
-   sem_close(rightChop);
-   sem_close(mutex);
-   
-   sem_unlink(rightFilename);   
-   sem_unlink(leftFilename);
-   sem_unlink("/mutex");
-   
-   exit(0);
+sig_atomic_t volatile stop = 0;
+
+void eat(int seat) {
+   printf("Philosopher #%d is eating\n",seat);
+   usleep(rand() % 5000000); // sleep random time less than 5 sec
+}
+
+void think(int seat) {
+   printf("Philosopher #%d is thinking\n",seat);
+   usleep(rand() % 5000000);
+}
+
+void handler(int signum) {
+   stop = 1;  
 }
 
 void chop(char *filename, int philosophers, int seat, int side) {   
-    
-   printf("Philosophers=%d Seat=%d\n",philosophers,seat);
+
    int file = seat; // can't use seat itself in sprintf or it gets converted to char value - weird!
       
    if (side == 1 && seat + 1 > philosophers) {
@@ -55,18 +52,23 @@ int main(int argc, char *argv[]) {
       fprintf(stderr, "Error: Not enough arguments.\n");
       exit(1);
    }
+   
+   char leftFilename[15];
+   char rightFilename[15];
+   sem_t *rightChop;
+   sem_t *leftChop;
+   sem_t *mutex;
       
    int philosophers = strtol(argv[1], NULL, 10);
    int seat = strtol(argv[2], NULL, 10);
-   int semvalue;
+   int semvalue, count = 0, interrupt;
    
-   mutex = sem_open("/mutex",O_CREAT,666,1);        
+   mutex = sem_open("/mutex",O_CREAT,666,1);
+           
    chop(leftFilename, philosophers, seat, 1);
-   printf("Right: %s\n", leftFilename);
    rightChop = sem_open(leftFilename,O_CREAT,666,1);
    
    chop(rightFilename, philosophers, seat, 0);
-   printf("Left: %s\n", rightFilename); 
    leftChop = sem_open(rightFilename,O_CREAT,666,1);
    
    if (rightChop == SEM_FAILED || leftChop == SEM_FAILED || mutex == SEM_FAILED) {
@@ -74,27 +76,29 @@ int main(int argc, char *argv[]) {
       fprintf(stderr,"Error: Semaphore open failed.\n");
       exit(1);
    }
-   
-   else {
-      
-      while(1) {         
-         sem_getvalue(rightChop,&semvalue);
-         printf("Philosopher %d is waiting for right chopstick: %s, Current value: %d...\n",seat,rightFilename,semvalue);
-         // sem_wait(mutex); // can have only 0 or 2 chop sticks
-         sem_wait(rightChop);         
-         sleep(1); // initiates deadlock faster
-         sem_getvalue(leftChop,&semvalue);
-         printf("Philosopher %d is waiting for left chopstick: %s, Current value: %d...\n",seat,leftFilename,semvalue);
-         sem_wait(leftChop);
-         // sem_post(mutex);
-         printf("Philosopher %d is eating with both chopsticks...\n", seat);
-         sleep(5); // eat
-         printf("Philosopher %d is done eating. Putting chop sticks down.\n", seat);
-         sem_post(leftChop);
-         sem_post(rightChop);
-         printf("Philosopher %d is thinking...\n", seat);
-         sleep(5); // think
-      }  
+     
+   while (!stop) {         
+            
+      sem_wait(mutex); // can have only 0 or 2 chop sticks
+      if (!stop) sem_wait(rightChop);         
+      if (!stop) sem_wait(leftChop);
+      sem_post(mutex);
+      eat(seat);
+      sem_post(leftChop);
+      sem_post(rightChop);
+      think(seat);
+      count++;         
    }
+   
+   sem_close(leftChop);
+   sem_close(rightChop);
+   sem_close(mutex);
+   
+   sem_unlink(rightFilename);   
+   sem_unlink(leftFilename);
+   sem_unlink("/mutex");
+   
+   fprintf(stderr,"Philosopher #%d completed %d cycles\n",seat,count);
+   return 0;
 } 
 
