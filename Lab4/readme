@@ -1,0 +1,8 @@
+COMP 322 Lab 4 Readme
+Andrew Isaac
+
+Lab 4 is a program called dining-p that simulates the dining philosophers scenario proposed by Dijkstra to demonstate deadlock. Using the launch-philosophers shell script, N processes are launched that share a chopstick semaphore with their adjacent processes in a circular fashion. Sending SIGTERM to a process stops the eat/think cycle and returns number of cycles completed prior to termination.  
+
+10/14/14 Phase 1 complete. Still need to terminate gracefully.
+10/15/14 Phase 2 complete pending allowed use of global variables passed to handler.
+10/15/14 Fixed code to meet completed spec. Still waiting on allowed use of global.

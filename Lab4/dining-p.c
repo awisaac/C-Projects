@@ -13,30 +13,28 @@ sig_atomic_t volatile stop = 0;
 
 void eat(int seat) {
    printf("Philosopher #%d is eating\n",seat);
-   usleep(rand() % 5000000); // sleep random time less than 5 sec
+   usleep(rand() % 1000003); // sleep random time less than 1 sec
 }
 
 void think(int seat) {
    printf("Philosopher #%d is thinking\n",seat);
-   usleep(rand() % 5000000);
+   usleep(rand() % 1000003);
 }
 
 void handler(int signum) {
    stop = 1;  
 }
 
-void chop(char *filename, int philosophers, int seat, int side) {   
+void getChopstick(char *filename, int philosophers, int seat, int side) {   
 
    int file = seat; // can't use seat itself in sprintf or it gets converted to char value - weird!
       
    if (side == 1 && seat + 1 > philosophers) {
       sprintf(filename, "/chopstick%d", 1); // last left chop stick
-   }
-   
+   }   
    else if (side == 1 && seat + 1 <= philosophers){
       sprintf(filename, "/chopstick%d", file + 1); // left chop stick
-   }   
-    
+   }    
    else {      
       sprintf(filename, "/chopstick%d", file); // right chop stick
    }   
@@ -61,14 +59,14 @@ int main(int argc, char *argv[]) {
       
    int philosophers = strtol(argv[1], NULL, 10);
    int seat = strtol(argv[2], NULL, 10);
-   int semvalue, count = 0, interrupt;
+   int count = 0;
    
    mutex = sem_open("/mutex",O_CREAT,666,1);
            
-   chop(leftFilename, philosophers, seat, 1);
+   getChopstick(leftFilename, philosophers, seat, 1);
    rightChop = sem_open(leftFilename,O_CREAT,666,1);
    
-   chop(rightFilename, philosophers, seat, 0);
+   getChopstick(rightFilename, philosophers, seat, 0);
    leftChop = sem_open(rightFilename,O_CREAT,666,1);
    
    if (rightChop == SEM_FAILED || leftChop == SEM_FAILED || mutex == SEM_FAILED) {
@@ -79,7 +77,7 @@ int main(int argc, char *argv[]) {
      
    while (!stop) {         
             
-      sem_wait(mutex); // can have only 0 or 2 chop sticks
+      sem_wait(mutex); // removes hold and wait - can have only 0 or 2 chopsticks
       if (!stop) sem_wait(rightChop);         
       if (!stop) sem_wait(leftChop);
       sem_post(mutex);
