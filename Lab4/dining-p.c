@@ -26,8 +26,9 @@ void handler(int signum) {
 }
 
 void getChopstick(char *filename, int philosophers, int seat, int side) {   
-
-   int file = seat; // can't use seat itself in sprintf or it gets converted to char value - weird!
+   
+   // can't use seat itself in sprintf or it gets converted to char value   
+   int file = seat; 
       
    if (side == 1 && seat + 1 > philosophers) {
       sprintf(filename, "/chopstick%d", 1); // last left chop stick
