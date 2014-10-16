@@ -8,6 +8,7 @@
 #include <sys/stat.h>        
 #include <semaphore.h>
 #include <signal.h>
+#include <string.h>
 
 sig_atomic_t volatile stop = 0;
 
@@ -28,16 +29,16 @@ void handler(int signum) {
 void getChopstick(char *filename, int philosophers, int seat, int side) {   
    
    // can't use seat itself in sprintf or it gets converted to char value   
-   int file = seat; 
+   int seat2 = seat; 
       
    if (side == 1 && seat + 1 > philosophers) {
-      sprintf(filename, "/chopstick%d", 1); // last left chop stick
+      sprintf(filename, "/awi93796%d\0", 1); // last left chop stick
    }   
    else if (side == 1 && seat + 1 <= philosophers){
-      sprintf(filename, "/chopstick%d", file + 1); // left chop stick
+      sprintf(filename, "/awi93796%d\0", seat2 + 1); // left chop stick
    }    
    else {      
-      sprintf(filename, "/chopstick%d", file); // right chop stick
+      sprintf(filename, "/awi93796%d\0", seat2); // right chop stick
    }   
 }
 
@@ -52,8 +53,8 @@ int main(int argc, char *argv[]) {
       exit(1);
    }
    
-   char leftFilename[15];
-   char rightFilename[15];
+   char leftFilename[10 + strlen(argv[1])]; // allocs /awi93796 + # of digits in N + \0
+   char rightFilename[10 + strlen(argv[1])];
    sem_t *rightChop;
    sem_t *leftChop;
    sem_t *mutex;
@@ -62,14 +63,24 @@ int main(int argc, char *argv[]) {
    int seat = strtol(argv[2], NULL, 10);
    int count = 0;
    
-   mutex = sem_open("/mutex",O_CREAT,666,1);
-           
+   getChopstick(rightFilename, philosophers, seat, 0);        
    getChopstick(leftFilename, philosophers, seat, 1);
-   rightChop = sem_open(leftFilename,O_CREAT,666,1);
+      
+   mutex = sem_open("/awi93796", O_CREAT|O_EXCL, 0666, 1);
+   if (mutex == SEM_FAILED ) {
+      mutex = sem_open("/awi93796", O_CREAT);
+   }
    
-   getChopstick(rightFilename, philosophers, seat, 0);
-   leftChop = sem_open(rightFilename,O_CREAT,666,1);
-   
+   leftChop = sem_open(leftFilename, O_CREAT|O_EXCL, 0666, 1);
+   if (leftChop == SEM_FAILED ) {
+      leftChop = sem_open(leftFilename, O_CREAT);
+   }
+      
+   rightChop = sem_open(rightFilename, O_CREAT|O_EXCL, 0666, 1);
+   if (rightChop == SEM_FAILED ) {
+      rightChop = sem_open(rightFilename, O_CREAT); 
+   }   
+      
    if (rightChop == SEM_FAILED || leftChop == SEM_FAILED || mutex == SEM_FAILED) {
    
       fprintf(stderr,"Error: Semaphore open failed.\n");
@@ -95,7 +106,7 @@ int main(int argc, char *argv[]) {
    
    sem_unlink(rightFilename);   
    sem_unlink(leftFilename);
-   sem_unlink("/mutex");
+   sem_unlink("/awi93796");
    
    fprintf(stderr,"Philosopher #%d completed %d cycles\n",seat,count);
    return 0;
