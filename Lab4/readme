@@ -8,3 +8,4 @@ Lab 4 is a program called dining-p that simulates the dining philosophers scenar
 10/15/14 Fixed code to meet completed spec. Still waiting on allowed use of global.
 10/16/14 Updated code to meet comp322.sandbox requirements. Runs on sandbox now, no longer runs on Fedora. :(
 10/17/14 Completed the enhanced version. Source: launch-philosophers.c. Updated make launch to compile.
+10/21/14 Changed prarent program pid printf to stderr to prevent stdout conflicts with eating/thinking printf stdout.  PID was printing multiple times.
