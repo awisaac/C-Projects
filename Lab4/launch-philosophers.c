@@ -64,7 +64,7 @@ void philosophize(int seat, int philosophers, sem_t *mutex) {
    
    while (!pStop) {
       
-      sem_wait(mutex); // removes hold and wait - can have only 0 or 2 chopsticks
+      sem_wait(mutex); // removes hold and wait - can have only 0 or 2 chopsticks at a time
       if (!pStop) sem_wait(rightChop);         
       if (!pStop) sem_wait(leftChop);
       sem_post(mutex);
@@ -80,8 +80,6 @@ void philosophize(int seat, int philosophers, sem_t *mutex) {
 }
 
 int main(int argc, char* argv[]) {
-   
-   printf("PID: %d",getpid());
    
    void (*pHandler)(int) = signal(SIGTERM,handler);
    
@@ -160,26 +158,11 @@ int main(int argc, char* argv[]) {
       sem_mem_loc = sem_mem_loc + sizeof(sem_t);
       i++;   
    }   
-   
-   /*
-    
-   printf("Mutex: %p\n", mem_ptr);
-   
-   i = 1;
-   while (i <= seats) {
-   
-      sem_t *rightChop = getChopstick(i, seats, 0, mem_ptr);
-      sem_t *leftChop = getChopstick(i, seats, 1, mem_ptr);
-      
-      printf("Philosopher %d's right chopstick: %p\n", i, rightChop);
-      printf("Philosopher %d's left chopstick: %p\n", i, leftChop);      
-      i++;
-   }
-   
-   */
-   
+ 
    // fork off philosopher children
-   
+      
+   fprintf(stderr, "PPID: %d ",getpid());
+      
    int pid;
    i = 1;
    
