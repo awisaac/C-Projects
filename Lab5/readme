@@ -1,0 +1,6 @@
+COMP 322 Lab 5 Readme
+Andrew Isaac
+
+Lab 5 is a program called paging that takes in a command line argument for a 32-bit virtual address and converts it to page number and offset, which it outputs to stdout. 
+
+10/28/14 32 bit address goes in, page number and offset comes out.  Can't explain that.  Project complete.
