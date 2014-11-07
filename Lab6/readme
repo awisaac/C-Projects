@@ -1,0 +1,6 @@
+COMP 322 Lab 6 Readme
+Andrew Isaac
+
+Lab 6 consists of two programs called spiritd and mole. spiritd is a daemon that forks two processes that exec mole.  When USR1 signal is sent to mole 1, it is killed and there is a random 50/50 chance that it will respawn.  Same for mole 2 with the USR2 signal. When the term signal is sent to spiritd, it kills both moles simultaneously and exits gracefully.
+
+11/6/14 Program completes standard daemon process and succesfully forks and execs mole children.  Still need to test random respawning of children. 
