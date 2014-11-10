@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
    }
    
    // open lab6 for write only
-   int fd = open(fullpath, O_WRONLY | O_APPEND | O_CREAT);
+   int fd = open(fullpath, O_WRONLY | O_APPEND | O_CREAT, 0666);
    
    if (fd == -1) {     
       perror(sys_errlist[errno]);
