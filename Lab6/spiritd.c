@@ -24,7 +24,7 @@ void newMole(int mole_num) {
       
       // mole 1
       if (mole_num == 1) {        
-         if (execl(mole_loc, "mole", "mole1", 0) == -1) {
+         if (execl(mole_loc, "mole", "mole1", 0) == -1) {            
             syslog(LOG_ERR | LOG_LPR, "PID: %d: %m", getpid()); // log errors to syslog daemon
             exit(-1);  
          }
@@ -169,6 +169,12 @@ int main(int argc, char **argv) {
    fd0 = open("/dev/null",O_RDWR);
    fd1 = dup(0);
    fd2 = dup(0);
+   
+   if (fd0 != 0 || fd1 != 1 || fd2 != 2) {
+   
+      syslog(LOG_ERR | LOG_LPR, "PID: %d: STDIN, STDOUT, STDERR map to /dev/null failed", getpid());
+      exit(-1);
+   }
    
    //create 2 moles   
    newMole(1); 
