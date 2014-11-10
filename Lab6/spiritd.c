@@ -3,40 +3,43 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <errno.h>
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <time.h>
+#include <string.h>
+#include <syslog.h>
 
 // mole pids
 int mole1, mole2;
+char *mole_loc;
 
 // creates a new mole
 void newMole(int mole_num) {
    
    int pid = fork();
-   
-   if (pid == 0) {      
       
-      if (mole_num == 1) {
+   if (pid == 0) { // child process           
       
-         if (execl("/root/mole", "mole", "mole1") == -1) {
-            perror(sys_errlist[errno]);
+      // mole 1
+      if (mole_num == 1) {        
+         if (execl(mole_loc, "mole", "mole1", 0) == -1) {
+            syslog(LOG_ERR | LOG_LPR, "PID: %d: %m", getpid()); // log errors to syslog daemon
             exit(-1);  
          }
       }
       
-      else {      
-            
-         if (execl("/root/mole","mole", "mole2") == -1) {
-            perror(sys_errlist[errno]);
+      // mole 2
+      else {               
+         if (execl(mole_loc,"mole", "mole2", 0) == -1) {
+            syslog(LOG_ERR | LOG_LPR, "PID: %d: %m", getpid()); // log errors to syslog daemon           
             exit(-1);          
          }      
       }
    }
    
+   // child pid gets saved
    else {
    
       if (mole_num == 1) {
@@ -50,15 +53,15 @@ void newMole(int mole_num) {
 }
 
 void handler(int signum) {
-      
-   //reregister handler
-   int i, signals[] = {SIGTERM, SIGUSR1, SIGUSR2};
    
+   static int moles_dead[2]; // tracks the alive/dead state of the moles
+   int i, mole_selected, signals[] = {SIGTERM, SIGUSR1, SIGUSR2};
+         
+   //reregister handler   
    for (i = 0; i < 3; i++) {
    
-      if (signal(signals[i],handler) == SIG_ERR) {
-      
-         fprintf(stderr,"Signal handler error.");
+      if (signal(signals[i],handler) == SIG_ERR) {      
+         syslog(LOG_ERR | LOG_LPR, "PID: %d: Signum is invalid.", getpid()); // log errors to syslog daemon        
          exit(-1);
       }   
    }  
@@ -71,30 +74,60 @@ void handler(int signum) {
    }
    
    else if (signum == SIGUSR1) {
-          
-      // if mole1 is killed, randomly respawn mole1
-      if (kill(mole1,SIGTERM) == 0 && rand() > RAND_MAX / 10) {         
-         newMole(1);         
+      
+      moles_dead[0] = 1;    
+      // if mole1 is killed, 3/4 chance of randomly respawning a new mole
+      if (kill(mole1,SIGTERM) == 0 && rand() > RAND_MAX / 4) {         
+         
+         // if both are dead, pick one to randomly respawn
+         if (moles_dead[0] == 1 && moles_dead[1] == 1) {
+            mole_selected = rand() % 2;         
+            newMole(mole_selected + 1);
+            moles_dead[mole_selected] = 0;               
+         }
+         
+         // else respawn mole1, since mole2 is alive
+         else {
+            newMole(1);
+            moles_dead[0] = 0;
+         }         
       }   
    }
    
    else if (signum == SIGUSR2) {
+      
+      moles_dead[1] = 1;      
+      // if mole2 is killed, 3/4 chance of randomly respawning a new mole
+      if (kill(mole2,SIGTERM) == 0 && rand() > RAND_MAX / 4) {
+      
+         // if both are dead, pick one to randomly respawn
+         if (moles_dead[0] == 1 && moles_dead[1] == 1) {
+            mole_selected = rand() % 2;         
+            newMole(mole_selected + 1);
+            moles_dead[mole_selected] = 0;               
+         }
          
-      // if mole2 is killed, randomly respawn mole2
-      if (kill(mole2,SIGTERM) == 0 && rand() > RAND_MAX / 10) {      
-         newMole(2);
+         // else respawn mole2, since mole1 is alive
+         else {      
+            newMole(2);
+            moles_dead[1] = 0;
+         }
       }   
-   } 
+   }    
 }
 
 int main(int argc, char **argv) {   
          
-   // new seed for random mole respawn;
-   srand(time(NULL));
-   
    int i, fd0, fd1, fd2;   
    struct rlimit limits;
-   int signals[] = {SIGTERM, SIGUSR1, SIGUSR2};   
+   int signals[] = {SIGTERM, SIGUSR1, SIGUSR2};
+      
+   // get current working directory to find mole program
+   // location after daemon changes working directory to /
+   mole_loc = strcat(getenv("PWD"),"/mole");
+  
+   // new seed for random mole respawn;
+   srand(time(NULL));
       
    // set all created file permissions to 0
    umask(0);
@@ -106,23 +139,23 @@ int main(int argc, char **argv) {
   
    // create a new session
    if (setsid() == -1) {
-      perror(sys_errlist[errno]);
+      syslog(LOG_ERR | LOG_LPR, "PID: %d: %m", getpid()); // log errors to syslog daemon
       exit(-1);    
    }
    
    // change working directory to /
    if (chdir("/") == -1) {
-      perror(sys_errlist[errno]);
+      syslog(LOG_ERR | LOG_LPR, "PID: %d: %m", getpid());
       exit(-1);      
    }         
    
    // get file desc. limits
    if (getrlimit(RLIMIT_NOFILE, &limits) == -1) {
-      perror(sys_errlist[errno]);
+      syslog(LOG_ERR | LOG_LPR, "PID: %d: %m", getpid());
       exit(-1);       
    }
    
-   // if no limit, make a limit
+   // if no limit, make limit 1024
    if (limits.rlim_max == RLIM_INFINITY) {   
       limits.rlim_max = 1024;
    } 
@@ -145,7 +178,7 @@ int main(int argc, char **argv) {
    for (i = 0; i < 3; i++) {
    
       if (signal(signals[i],handler) == SIG_ERR) {      
-         fprintf(stderr,"Signal handler error.");
+         syslog(LOG_ERR | LOG_LPR, "PID: %d: Signum is invalid.", getpid());
          exit(-1);
       }   
    } 

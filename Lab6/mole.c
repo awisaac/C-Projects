@@ -9,11 +9,9 @@
 int main(int argc, char **argv) {
    
    // place lab6 in home directory
-   char *home = getenv("HOME");
-   char *fullpath = strcat(home,"/lab6.log");
+   char *fullpath = strcat(getenv("HOME"),"/lab6.log");
    
-   if (argc < 2) {
-      
+   if (argc < 2) {      
       fprintf(stderr,"No arguments provided.\n");
       exit(-1);      
    }
@@ -21,22 +19,20 @@ int main(int argc, char **argv) {
    // open lab6 for write only
    int fd = open(fullpath, O_WRONLY | O_APPEND | O_CREAT);
    
-   if (fd == -1) {   
-      
+   if (fd == -1) {     
       perror(sys_errlist[errno]);
       exit(-1);  
    }
    
    // write specified string to file 
-   if (strcmp(argv[1], "mole1") == 0) {
-   
+   if (strcmp(argv[1], "mole1") == 0) {   
       write(fd, "Pop mole1\n",11); 
    }
-   else if (strcmp(argv[1], "mole2") == 0) {  
-     
+   else {     
       write(fd, "Pop mole2\n",11); 
    }
    
+   // clean up
    close(fd);
    
    // hang around until terminated
