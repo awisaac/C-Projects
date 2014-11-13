@@ -1,3 +1,7 @@
+// COMP 322 Lab 6 - mole.c
+// A simple program that writes to ~/lab6.log either pop mole1 or 2 depending on argv[1]
+// and persists until killed by parent daemon spiritd.
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h> 

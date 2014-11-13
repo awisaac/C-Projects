@@ -1,3 +1,8 @@
+// COMP 322 Lab 6 - spiritd.c
+// Program is a daemon that spawns two mole children.  When mole children are killed
+// by the USR1 and USR2 signals sent to the parent, they may randomly respawn.  Sending
+// a TERM signal to the parent kills the children and the parent.
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
