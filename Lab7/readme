@@ -1,0 +1,8 @@
+COMP 322 Lab 7 Readme
+Andrew Isaac 11/15/14
+
+Lab 7 consists of two programs called matrix_gen and matrix_add.  Matrix_gen generates a matrix of random integers between -100 and 100.  The size is determined by the supplied argument squared. The matrix is output to stdout.  The second program is matrix_add, which takes a matrix input via stdin and adds a random scalar to all matrix elements.  This matrix is output to stdout.  Matrix_add does this by breaking the input matrix into blocks (the number of which is determined by provided argument) and asynchronously reads and writes the data being added. The purpose of this program is to demonstrate the effects of on demand paging. When a block size is bigger than a page, the performance change is significant and can be seen by the timestamps output to stderr when the program finishes.
+
+11/14/14 Matrix_gen completed.  Matrix_add reading to buffer correctly, async writing not so much. 
+
+11/15/14 Discovered issue with async writing.  The offset is not updated after each write and needed to specified to write to the next block. Matrix_add successfully reads, adds, and writes.
