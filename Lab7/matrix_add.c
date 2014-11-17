@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
    
    if (argc < 3) {
    
-      fprintf(stderr,"Two arguments required.");
+      fprintf(stderr,"Two arguments required.\n");
       exit(-1);
    }
    
@@ -35,6 +35,14 @@ int main(int argc, char **argv) {
    int size = atoi(argv[1]); // side length of matrix
    size *= size; // square side to get total size
    int blocks = atoi(argv[2]); // number of blocks
+   
+   if (size % blocks != 0) {
+   
+      fprintf(stderr,"Matrix size can not be evenly divided into %d blocks.\n",blocks);
+      exit(-1); 
+   }
+   
+   
    int block_size = size / blocks; // size of a block
    int scalar = rand() % 200 - 100; // random scalar
    
