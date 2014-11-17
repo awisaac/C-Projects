@@ -6,3 +6,6 @@ Lab 7 consists of two programs called matrix_gen and matrix_add.  Matrix_gen gen
 11/14/14 Matrix_gen completed.  Matrix_add reading to buffer correctly, async writing not so much. 
 
 11/15/14 Discovered issue with async writing.  The offset is not updated after each write and needed to specified to write to the next block. Matrix_add successfully reads, adds, and writes.
+
+11/16/14 Added input verification that the blocks divide the size evenly, per email discussion.
+
