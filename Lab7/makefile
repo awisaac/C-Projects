@@ -7,10 +7,10 @@
 # EXECUTABLES is a Make Variable (similar to an environment variable) that 
 # lists all the "executables" associated with the lab. 
 
-EXECUTABLES=matrix_gen matrix_add
+EXECUTABLES=matrix_gen matrix_add reader
 
-SRC=matrix_gen.c matrix_add.c
-OBJ=matrix_gen.o matrix_add.o
+SRC=matrix_gen.c matrix_add.c reader.c
+OBJ=matrix_gen.o matrix_add.o reader.o
 
 MATRIX_GEN=matrix_gen
 
@@ -21,6 +21,11 @@ MATRIX_ADD=matrix_add
 
 MATRIX_ADD_SRC=matrix_add.c
 MATRIX_ADD_OBJ=matrix_add.o
+
+READER=reader
+
+READER_SRC=reader.c
+READER_OBJ=reader.o
 
 # The CC and CFLAGS variables are defined to ensure I'm using the native 
 # compiler and that the correct command-line options are set
@@ -34,6 +39,7 @@ CFLAGS=-g -lrt
 all: $(EXECUTABLES)
 matrix_gen: $(MATRIX_GEN)
 matrix_add: $(MATRIX_ADD)
+reader: $(READER)
 
 # On the following lines (which _must_ start with a tab), are the commands I 
 # need to type -- each time my source file is modified.
@@ -49,6 +55,10 @@ $(MATRIX_GEN):
 $(MATRIX_ADD):
 	$(CC) $(CFLAGS) -c $(MATRIX_ADD_SRC)
 	$(CC) $(CFLAGS) -o $@ $(MATRIX_ADD_OBJ)
+
+$(READER):
+	$(CC) $(CFLAGS) -c $(READER_SRC)
+	$(CC) $(CFLAGS) -o $@ $(READER_OBJ)
 
 # By convention, I always have a target called
 # "clean" that I used to define all temporary
