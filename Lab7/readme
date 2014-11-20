@@ -9,4 +9,6 @@ Lab 7 consists of two programs called matrix_gen and matrix_add.  Matrix_gen gen
 
 11/16/14 Added input verification that the blocks divide the size evenly, per email discussion.
 
-11/18/14 Realized that not everybody reads binary. Make a simple program that converts binary integers to their char values. Run reader filename to read file output as a human.
+11/18/14 Realized that not everybody reads binary. Made a simple program that converts binary integers to their char values. Pipe output of matrix_gen or matrix_add to reader to generate readable output.
+
+Example Usage: matrix_gen 10 | matrix_add 100 10 | reader > readable.txt
