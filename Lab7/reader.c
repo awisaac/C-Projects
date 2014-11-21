@@ -10,17 +10,10 @@ int main(int argc, char **argv) {
       
    while (bytes_read > 0) {
       
-      if (bytes_read == sizeof(int) * 1024) {      
-         for (i = 0; i < 1024; i++) {
-            fprintf(stdout,"%d ",buffer[i]);
-         } 
-      }      
-      else {
-         for (i = 0; i < bytes_read / sizeof(int); i++) {
-            fprintf(stdout,"%d ",buffer[i]);
-         }       
+      for (i = 0; i < bytes_read / sizeof(int); i++) {
+         fprintf(stdout,"%d ",buffer[i]);
       }
-      
+             
       bytes_read = read(0, buffer, sizeof(int) * 1024);       
    }
 }
