@@ -6,3 +6,5 @@ Lab 6 consists of two programs called spiritd and mole. spiritd is a daemon that
 11/6/14 Program completes standard daemon process and succesfully forks and execs mole children.  Still need to test random respawning of children. 
 
 11/10/14 Random respawning works. Set to 3/4 chance to respawn for better testing results.  Changed error logging to syslog since stderr is duped to /dev/null.
+
+11/12/14 Added program description.
